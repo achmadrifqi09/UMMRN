@@ -3,7 +3,7 @@
 @section('content')
     <div class="min-h-screen max-md:px-6 px-20 flex flex-col items-center pt-16">
 
-        <div class="h-36 w-screen bg-gray-100">
+        <div class="h-36 w-screen bg-gray-100" >
             <div class="relative top-20 flex px-20 max-md:px-6 max-md:top-24">
                 <img 
                  @if ($researcher?->image)

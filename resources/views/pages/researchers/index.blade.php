@@ -36,7 +36,7 @@
                     @foreach ($researchers as $researcher)
                         <div class="bg-white shadow-sm border rounded-xl">
                             <div
-                                class="h-36 bg-hero-pattern bg-cover py-6 rounded-tl-xl rounded-tr-xl bg-bottom"
+                                class="h-36 bg-hero-pattern bg-cover py-6 rounded-tl-xl rounded-tr-xl"
                                 style="background-image: url('images/bg-vector.png')">
                                     
                                 <img
@@ -50,12 +50,13 @@
                             </div>
                             <div class="mt-14 p-4">
                                 <h5 class="text-lg text-gray-400 text-center">
-                                    <a href="/researchers/details/{{ $researcher->id }}">{{$researcher->name }}</a>     
-                                    @if (auth()->user()->id === $researcher->id && auth()->user()->role === 'Super Researcher')
-                                        (you)
-                                    @elseif(auth()->user()->id === $researcher->id && auth()->user()->role === 'Researcher')
-                                        (you)
-                                    @endif
+                                    <a href="/researchers/details/{{ $researcher->id }}">{{$researcher->name }}     
+                                        @if (auth()->user()->id === $researcher->id && auth()->user()->role === 'Super Researcher')
+                                            (you)
+                                        @elseif(auth()->user()->id === $researcher->id && auth()->user()->role === 'Researcher')
+                                            (you)
+                                        @endif
+                                    </a>
                                 </h5>
                                 <p class="text-lg mt-2 text-slate-900 text-center">{{ $researcher->interest }}</p>
                                 @if (auth()->user()->role === 'Super Researcher')

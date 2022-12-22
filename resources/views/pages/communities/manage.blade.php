@@ -22,8 +22,7 @@
                         
                         alt="avatar" class="w-24 h-24 rounded-full object-cover object-center" />
                      </div>
-                     {{-- <label for="communities_picture" class="relative top-8 px-4 py-1 right-1 text-sm bg-lime-400 rounded-xl">Change</label>
-                     <input hidden class="w-full bg-gray-100 px-4 py-2 rounded-md mt-1" id="communities_picture" name="communities_picture" type="file" accept="image/*"> --}}
+                    
                   </div>
                   <div  class="w-8/12 mx-auto max-lg:w-full border-l pl-6 max-sm:pl-0 max-sm:border-l-0">
                      <div class="mt-2">
@@ -41,6 +40,9 @@
                          <div class="bg-gray-100 px-4 py-2 rounded-md mt-1">
                             {!! $community->description !!}
                          </div>
+                     </div>
+                     <div class="mt-6">
+                         <a class=" bg-lime-400 px-6 py-1.5 rounded-xl text-slate-900 h-max whitespace-nowrap max-sm:mt-2" href="/communities/detail/{{ $community->id }}">Discussion Groups</a>
                      </div>
                   </div>
                </div>
@@ -68,41 +70,47 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @if ($isEmpty)
+                            <tr class="bg-white border-b hover:bg-gray-50 ">
+                                <td class="py-4 px-6 text-center" colspan="5">
+                                    No Members
+                                </td>
+                            </tr>
+                        @endif
                         @foreach ($members as $member)
-                            
-                        @endforeach
-                        <tr class="bg-white border-b hover:bg-gray-50 ">
-                            <th scope="row" class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap">
-                                {{ $member->student->name }}
-                            </th>
-                            <td class="py-4 px-6">
-                               {{ $member->student->email }}
-                            </td>
-                            <td class="py-4 px-6">
-                               {{ $member->student->phone }}
-                            </td>
-                            <td class="py-4 px-6">
-                               {{ $member->status }}
-                            </td>
-                            <td class="py-4 px-6 flex h-max  space-x-4 ">
-                                <form action="/communities/approval" method="POST" id="approvalForm">
-                                        @csrf
-                                        <input type="number" name="id" value="{{ $member->id }}" hidden/>
-                                        <input type="text" name="status" id="status" hidden/>
-                                    </form>
-                                    <button type="button" onclick="submitted('Accept')" class="text-base p-2 bg-lime-600 text-white rounded-lg">
-                                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                       <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                       </svg>
-
-                                    </button>
-                                    <button type="button" onclick="submitted('Reject')" class="text-base p-2 bg-red-600 text-white rounded-lg">
+                            <tr class="bg-white border-b hover:bg-gray-50 ">
+                                <td scope="row" class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap">
+                                    {{ $member->student->name }}
+                                </td>
+                                <td class="py-4 px-6">
+                                    {{ $member->student->email }}
+                                </td>
+                                <td class="py-4 px-6">
+                                    {{ $member->student->phone }}
+                                </td>
+                                <td class="py-4 px-6">
+                                    {{ $member->status }}
+                                </td>
+                                <td class="py-4 px-6 flex h-max  space-x-4 ">
+                                    <form action="/communities/approval" method="POST" id="approvalForm">
+                                            @csrf
+                                            <input type="number" name="id" value="{{ $member->id }}" hidden id="idMember" />
+                                            <input type="text" name="status" id="status" hidden/>
+                                        </form>
+                                        <button type="button" onclick="submitted('Accept', {{ $member->id }})" class="text-base p-2 bg-lime-600 text-white rounded-lg">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                       <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                       </svg>
-                                    </button>
-                            </td>
-                        </tr>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                        </svg>
+
+                                        </button>
+                                        <button type="button" onclick="submitted('Reject', {{ $member->id }})" class="text-base p-2 bg-red-600 text-white rounded-lg">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        </button>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -111,8 +119,10 @@
 @endsection
 @section('script')
   <script>
-        function submitted(status) {
-            let a = document.getElementById('status').value = status;
+        function submitted(status, id) {
+            document.getElementById('status').value = status;
+            document.getElementById('idMember').value = id;
+            
             document.getElementById('approvalForm').submit();
         }
 

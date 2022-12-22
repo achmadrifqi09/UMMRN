@@ -28,6 +28,8 @@ Route::group(['middleware' => ['auth:student,researcher', 'back_button', 'status
     route::get('/communities', [CommunityController::class, 'index']);
     route::get('/communities/detail/{id}', [CommunityController::class, 'show']);
     route::post('/communities/join', [CommunityController::class, 'join']);
+    route::post('/communities/send-topic/{id}', [CommunityController::class, 'sendTopic']);
+    route::post('/communities/send-comment/{id}', [CommunityController::class, 'sendComment']);
 });
 
 

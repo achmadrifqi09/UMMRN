@@ -103,25 +103,28 @@ class ProjectController extends Controller
       
         $project = Project::find($validatedData['id']);
 
-        if($project->available_member < $project->total_member){
-            $checkMember = MemberOfProject::where('id_project', $validatedData['id'])
-                            ->where('id_student', $validatedData['studentId'])->first();
-                            
-            if($validatedData['status'] === 'Accept' && $checkMember->status !== 'Accept'){
+        $checkMember = MemberOfProject::where('id_project', $validatedData['id'])
+                        ->where('id_student', $validatedData['studentId'])->first();
+        if($project->available_member < $project->total_member && $checkMember->status !== 'Accept'){
+            
+            if($validatedData['status'] === 'Accept'){
                 $project->update([
                     'available_member' => $project->available_member + 1,
-                ]);
-            }else if($validatedData['status'] === 'Reject' && $checkMember->status === 'Accept'){
-                 $project->update([
-                    'available_member' => $project->available_member - 1,
                 ]);
             }else{
                 Alert::toast('Cannot change existing status', 'error');
                 return back();
             }
-
             $checkMember->update(['status' => $validatedData['status']]);
 
+            Alert::toast('The approval status has been updated', 'success');
+            return back();
+        }else if($validatedData['status'] === 'Reject' && $checkMember->status === 'Accept'){
+            $project->update([
+                'available_member' => $project->available_member - 1,
+            ]);
+            
+             $checkMember->update(['status' => $validatedData['status']]);
             Alert::toast('The approval status has been updated', 'success');
             return back();
         }else{

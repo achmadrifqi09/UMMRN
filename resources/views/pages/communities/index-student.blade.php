@@ -10,14 +10,22 @@
       <hr class="my-6 border-gray-200 sm:mx-auto" />
    </div>
    <div class="mt-6 w-full">
+      <h2 class="mb-4 text-lg border-b w-max">Communities Joined</h2>
+      @if ($datas->joinedIsEmpty)
+          <div class="py-4 px-6 bg-gray-100 rounded-lg flex justify-center space-x-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+            <span>You've never joined a community</span>
+         </div>
+      @endif
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 align-middle">
-         @foreach ($datas as $data)
-             
+         @foreach ($datas->communitiesJoined as $community)
             <div class="bg-white shadow-md rounded-xl">
                <div class="h-36  bg-cover py-6 rounded-tl-xl rounded-tr-xl bg-bottom" style="background-image: url('{{ asset('images/bg-vector.png') }}')">
                   <img 
-                     @if ($data?->community?->image)
-                         src="{{ asset('storage/'.$data?->community?->image) }}"
+                     @if ($community?->community?->image)
+                         src="{{ asset('storage/'.$community?->community?->image) }}"
                      @else
                          src="{{ asset('images/ic-comunities.svg') }}"
                      @endif
@@ -25,15 +33,15 @@
                      class="rounded-full w-40 h-40 mx-auto relative top-8 object-cover border-8 border-white"/>
                </div>
                <div class="mt-20 p-4 pb-6 text-center">
-                  @if ($data->id_student === auth()->user()->id && $data->status !== 'Pending'&& $data->status !== 'Reject')
-                     <a class="text-xl text-slate-900" href="/communities/detail/{{ $data?->community?->id }}">
-                        {{ $data?->community?->name }}
+                  @if ($community->id_student === auth()->user()->id && $community->status !== 'Pending'&& $community->status !== 'Reject')
+                     <a class="text-xl text-slate-900" href="/communities/detail/{{ $community?->community?->id }}">
+                        {{ $community?->community?->name }}
                      </a>
                   @else
-                     <p class="text-xl text-slate-900">{{ $data?->community?->name }}</p>
+                     <p class="text-xl text-slate-900">{{ $community?->community?->name }}</p>
                   @endif
                   <p class="text-base mt-2 text-gray-500">
-                     {!! $data?->community?->description !!}
+                     {!! $community?->community?->description !!}
                   </p>
                   @if (auth()->user()->role != 'Student')
                      <a class="mt-4 left-4 px-3 rounded-full py-2 bg-lime-400 flex justify-center items-center" href="/communities/manage">
@@ -44,20 +52,65 @@
                         Manage
                      </a>
                   @else
-                     @if ($data->id_student === auth()->user()->id)
+                     @if ($community->id_student === auth()->user()->id)
                          <button class="mt-4 w-full left-4 px-6 rounded-full py-2 bg-lime-400 flex justify-center items-center mx-auto" disabled>
-                        {{ $data->status }}
+                        {{ $community->status }}
                      @else
                      <form action="/communities/join" method="POST">
                         @csrf
                         <input type="number" name="id_student" required value="{{ auth()->user()->id }}" hidden>
-                        <input type="number" name="id_community" required value="{{ $data->id }}" hidden>
+                        <input type="number" name="id_community" required value="{{ $community->id }}" hidden>
                         <button class="mt-4 w-full left-4 px-6 rounded-full py-2 bg-lime-400 flex justify-center items-center mx-auto" type="submit">
                         + Join
                         </button>
                      </form>
                      @endif
                   @endif
+               </div>
+            </div>
+         @endforeach
+      </div>
+   </div>
+
+    <div class="mt-20 w-full">
+      <h2 class="mb-4 text-lg border-b w-max">Unjoined Communities</h2>
+       @if ($datas->communitiesIsEmpty)
+          <div class="py-4 px-6 bg-gray-100 rounded-lg flex justify-center space-x-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+
+            <span>No other community</span>
+         </div>
+      @endif
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 align-middle">
+         @foreach ($datas->communities as $community)
+            <div class="bg-white shadow-md rounded-xl">
+               <div class="h-36  bg-cover py-6 rounded-tl-xl rounded-tr-xl bg-bottom" style="background-image: url('{{ asset('images/bg-vector.png') }}')">
+                  <img 
+                     @if ($community?->image)
+                         src="{{ asset('storage/'.$community?->image) }}"
+                     @else
+                         src="{{ asset('images/ic-comunities.svg') }}"
+                     @endif
+                     alt="communities picture"
+                     class="rounded-full w-40 h-40 mx-auto relative top-8 object-cover border-8 border-white"/>
+               </div>
+               <div class="mt-20 p-4 pb-6 text-center">
+                
+                  <p class="text-xl text-slate-900">{{ $community?->name }}</p>
+
+                  <p class="text-base mt-2 text-gray-500">
+                     {!! $community?->description !!}
+                  </p>
+                     <form action="/communities/join" method="POST">
+                        @csrf
+                        <input type="number" name="id_student" required value="{{ auth()->user()->id }}" hidden>
+                        <input type="number" name="id_community" required value="{{ $community->id }}" hidden>
+                        <button class="mt-4 w-full left-4 px-6 rounded-full py-2 bg-lime-400 flex justify-center items-center mx-auto" type="submit">
+                        + Join
+                        </button>
+                     </form>
                </div>
             </div>
          @endforeach

@@ -21,7 +21,7 @@
                      <label for="name" class="text-gray-500">Name</label>
                      <input
                         id="name"
-                        type="name"
+                        type="text"
                         placeholder="Enter name"
                         name="name"
                         value="{{ old('name') }}"

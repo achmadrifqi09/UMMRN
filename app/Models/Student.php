@@ -21,5 +21,13 @@ class Student extends Authenticatable
     public function community(){
         return $this->belongsToMany(MemberOfCommunity::class);
     }
+
+    public function topic(){
+        return $this->belongsToMany(Topic::class);
+    }
+    
+    public function comment(){
+        return $this->belongsToMany(Comment::class);
+    }
     
 }

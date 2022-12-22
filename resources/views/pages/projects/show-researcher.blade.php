@@ -112,15 +112,15 @@
                                         @csrf
                                         <input type="number" name="id" value="{{ $project->id }}" hidden/>
                                         <input type="text" name="status" id="status" hidden/>
-                                        <input type="number" name="studentId" value="{{ $member?->student?->id }}" hidden/>
+                                        <input type="number" name="studentId" id="studentId" hidden/>
                                     </form>
-                                    <button type="button" onclick="submitted('Accept')" class="text-base p-2 bg-lime-600 text-white rounded-lg">
+                                    <button type="button" onclick="submitted('Accept', {{ $member?->student?->id }})" class="text-base p-2 bg-lime-600 text-white rounded-lg">
                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                        </svg>
 
                                     </button>
-                                    <button type="button" onclick="submitted('Reject')" class="text-base p-2 bg-red-600 text-white rounded-lg">
+                                    <button type="button" onclick="submitted('Reject', {{ $member?->student?->id }})" class="text-base p-2 bg-red-600 text-white rounded-lg">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                        </svg>
@@ -135,8 +135,9 @@
    </div>
 @section('script')
     <script>
-        function submitted(status) {
-            let a = document.getElementById('status').value = status;
+        function submitted(status, studentId) {
+            document.getElementById('status').value = status;
+            document.getElementById('studentId').value = studentId;
             document.getElementById('approvalForm').submit();
         }
 

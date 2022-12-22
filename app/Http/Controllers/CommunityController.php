@@ -2,30 +2,43 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Comment;
 use stdClass;
 use App\Models\Community;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\MemberOfCommunity;
+use App\Models\MemberOfProject;
+use App\Models\Topic;
+use Illuminate\Support\Facades\DB;
+use PhpParser\Node\Expr\Cast\Object_;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class CommunityController extends Controller
 {
      public function index(){
         $datas = new stdClass();
-        $isEmpty = false;
-
-        if(str_contains(auth()->user()->role, 'Researcher')){ 
-            $datas = Community::where('id_researcher', auth()->user()->id)->get();
-            
+        if(str_contains(auth()->user()->role, 'Researcher')){
+            $communities = Community::where('id_researcher', auth()->user()->id)->get();
+            $datas->communities = $communities;
+            $datas->isEmpty = $communities->isEmpty();
         }else{
-            $datas = MemberOfCommunity::with('community')->get();
+            $members = MemberOfCommunity::where('id_student', auth()->user()->id)->pluck('id_community');
+          
+            $communitiesJoined = MemberOfCommunity::where('id_student', auth()->user()->id)->with('community')->get();
+            $communities = Community::where(function($query) use ($members){
+                foreach($members as $idCommunity){
+                    $query->where('id', '!=', $idCommunity);
+                }
+            })->get();
+    
+          $datas->communitiesJoined = $communitiesJoined;
+          $datas->joinedIsEmpty = $communitiesJoined->isEmpty();
+          $datas->communities = $communities;
+          $datas->communitiesIsEmpty = $communities->isEmpty();
+            
         }
-        if($datas->isEmpty()){
-            $isEmpty = true;
-        }
-
-        return view('pages/communities/index', ['datas' => $datas, 'isEmpty' => $isEmpty]);
+         return view('pages/communities/index', ['datas' => $datas]);
     }
 
     public function create(){
@@ -55,19 +68,55 @@ class CommunityController extends Controller
     public function show($id){
         $community = Community::find($id);
         $members = MemberOfCommunity::where('id_community', $id)->with(['student'])->get();
+        $topics = Topic::where('id_community', $id)->with(['student', 'researcher'])->orderBy('created_at', 'desc')->get();
+        $comments = Comment::where('id_community', $id)->with(['student', 'researcher'])->get();
+        
+        return view('pages/communities/show', [
+            'community' => $community, 
+            'members' => $members, 
+            'topics' => $topics, 
+            'comments' => $comments
+        ]);
+    }
 
-        return view('pages/communities/show', ['community' => $community, 'members' => $members]);
+    public function sendTopic(Request $request, $id){
+        $validatedData = $request->validate([
+            'message' => 'required',
+            'id_researcher' => 'required',
+            'id_student' => 'nullable'
+        ]);
+
+        $validatedData['id_community'] = $id;
+        
+        Topic::create($validatedData);
+        Alert::toast('Successfully submitted topic', 'success');
+
+        return back();
+
+    }
+
+    public function sendComment(Request $request, $id){
+         $validatedData = $request->validate([
+            'comment' => 'required',
+            'id_researcher' => 'required',
+            'id_student' => 'nullable',
+            'id_topic' => 'required'
+        ]);
+        $validatedData['id_community'] = $id;
+
+        Comment::create($validatedData);
+        Alert::toast('Successfully submitted comment', 'success');
+
+        return back();
     }
 
     public function approval(Request $request){
-
         $validatedData = $request->validate([
             'id' => 'required',
             'status' => 'required',
         ]);
 
         $member =  MemberOfCommunity::find($validatedData['id']);
-        
         $member->update(['status' => $validatedData['status']]);
 
       
@@ -78,7 +127,7 @@ class CommunityController extends Controller
     public function manage($id){
         $members = MemberOfCommunity::where('id_community', $id)->with(['student'])->get();
         $community = Community::find($id);
-        return view('pages/communities/manage', ['community' => $community, 'members' => $members]);
+        return view('pages/communities/manage', ['community' => $community, 'members' => $members, 'isEmpty' => $members->isEmpty()]);
     }
 
     public function join(Request $request) {
